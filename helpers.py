@@ -1,10 +1,14 @@
 # View Helpers
-def getCellBounds(row, col, maze, app):
+def getCellSpecs(app, maze):
     width = app.width - 2*app.margin
     height = app.height - 2*app.margin
     (numRows, numCols) = (len(maze), len(maze[0]))
     cellWidth = width//numRows
     cellHeight = height//numCols
+    return (cellWidth, cellHeight)
+
+def getCellBounds(row, col, maze, app):
+    (cellWidth, cellHeight) = getCellSpecs(app, maze)
     (x0, y0, x1, y1) = (col*cellWidth, row*cellHeight, (col+1)*cellWidth,
     (row+1)*cellHeight)
     return (x0, y0, x1, y1)

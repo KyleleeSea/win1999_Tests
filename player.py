@@ -36,6 +36,7 @@ class Player:
         if self.checkLegalMove(newX, newY, app):
             self.xPos = newX
             self.yPos = newY
+            self.row, self.col = getCell(app, newX, newY, self.maze)
 
     def keyPressed(self, app, event):
         if event.key == 'w':
@@ -70,3 +71,30 @@ class Player:
         self.xPos+(self.moveVel * math.sin(math.radians(self.angle)))*10,
         self.yPos+self.moveVel * math.cos(math.radians(self.angle))*10, 
         fill='orange')
+
+        self.drawRay(app, canvas)
+
+    def drawRay(self, app, canvas):
+        isInWall = False
+        # Horizontal
+        # Assuming player facing up
+        # First intersection
+        (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
+        py = cellHeight*(self.row - 1) + app.margin
+        #0.0001 added to avoid div by 0 error
+        px = self.xPos + (self.yPos - py)/(math.tan(math.radians(self.angle-90))+0.0001)
+        canvas.create_oval(px-5, py-5, px+5, py+5, fill='green')
+        # Check if first intersection hits a wall
+        (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
+        if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
+        intersectionCol >= 0 and intersectionCol < len(self.maze)):
+            if self.maze[intersectionRow][intersectionCol] == 1:
+                isInWall = True
+                return getDistance(self.xPos, self.yPos, px, py)
+        
+        while isInWall != True:
+            Xa = cellHeight/(math.tan(math.radians(self.angle-90))+0.0001)
+            px2 = px+Xa
+            py2 = py-cellHeight
+            canvas.create_oval(px2-5, py2-5, px2+5, py2+5, fill='green')
+            
