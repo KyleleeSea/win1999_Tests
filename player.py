@@ -74,27 +74,81 @@ class Player:
 
         self.drawRay(app, canvas)
 
+
+# https://permadi.com/1996/05/ray-casting-tutorial-7/
+# Conversation with Stephen Mao, discussed how to calculate height of a
+# triangle. stmao@andrew.cmu.edu
     def drawRay(self, app, canvas):
+        if self.angle >= 90 and self.angle <= 270:
+            distHor = self.horizontalUpRay(app)
+        else:
+            distHor = self.horizontalDownRay(app)
+        print(distHor)
+
+    def horizontalDownRay(self, app):
         isInWall = False
         # Horizontal
-        # Assuming player facing up
         # First intersection
         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
-        py = cellHeight*(self.row - 1) + app.margin
+        py = cellHeight*(self.row + 1)
         #0.0001 added to avoid div by 0 error
-        px = self.xPos + (self.yPos - py)/(math.tan(math.radians(self.angle-90))+0.0001)
-        canvas.create_oval(px-5, py-5, px+5, py+5, fill='green')
+        px = self.xPos + (self.yPos - py)/(math.tan(math.radians(self.angle-90))
+        +0.0001)
         # Check if first intersection hits a wall
         (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
+        # Only check if point on map
         if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
         intersectionCol >= 0 and intersectionCol < len(self.maze)):
             if self.maze[intersectionRow][intersectionCol] == 1:
                 isInWall = True
                 return getDistance(self.xPos, self.yPos, px, py)
         
+        # Test other intersections until hit wall
         while isInWall != True:
             Xa = cellHeight/(math.tan(math.radians(self.angle-90))+0.0001)
-            px2 = px+Xa
-            py2 = py-cellHeight
-            canvas.create_oval(px2-5, py2-5, px2+5, py2+5, fill='green')
-            
+            px = px-Xa
+            py = py+cellHeight
+            (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
+            if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
+            intersectionCol >= 0 and intersectionCol < len(self.maze)):
+                if self.maze[intersectionRow][intersectionCol] == 1:
+                    isInWall = True
+                    return getDistance(self.xPos, self.yPos, px, py)
+            # If point off map, just return a giant number 
+            else:
+                isInWall = True
+                return 10000000000
+                
+    def horizontalUpRay(self, app):
+        isInWall = False
+        # Horizontal
+        # First intersection
+        (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
+        py = cellHeight*(self.row - 1)
+        #0.0001 added to avoid div by 0 error
+        px = self.xPos + (self.yPos - py)/(math.tan(math.radians(self.angle-90))
+        +0.0001)
+        # Check if first intersection hits a wall
+        (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
+        # Only check if point on map
+        if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
+        intersectionCol >= 0 and intersectionCol < len(self.maze)):
+            if self.maze[intersectionRow][intersectionCol] == 1:
+                isInWall = True
+                return getDistance(self.xPos, self.yPos, px, py)
+        
+        # Test other intersections until hit wall
+        while isInWall != True:
+            Xa = cellHeight/(math.tan(math.radians(self.angle-90))+0.0001)
+            px = px+Xa
+            py = py-cellHeight
+            (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
+            if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
+            intersectionCol >= 0 and intersectionCol < len(self.maze)):
+                if self.maze[intersectionRow][intersectionCol] == 1:
+                    isInWall = True
+                    return getDistance(self.xPos, self.yPos, px, py)
+            # If point off map, just return a giant number 
+            else:
+                isInWall = True
+                return 10000000000
