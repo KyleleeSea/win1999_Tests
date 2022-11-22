@@ -15,6 +15,7 @@ class Raycaster:
 
 
     def castRays(self, app, canvas):
+        print(app.player.angle)
         angle = app.player.angle - 30
         for i in range(self.numRays):
             angle += self.angleBetweenRays
@@ -25,16 +26,19 @@ class Raycaster:
 # Conversation with Stephen Mao, discussed how to calculate height of a
 # triangle. stmao@andrew.cmu.edu
     def getRay(self, app, angle, canvas):
-        if app.player.angle >= 90 and app.player.angle <= 270:
+        if angle >= 90 and angle <= 270:
             distHor = self.horizontalUpRay(app, angle, canvas)
         else:
             distHor = self.horizontalDownRay(app, angle, canvas)
-        if app.player.angle >= 0 and app.player.angle <= 180:
+        if angle >= 0 and angle <= 180:
             distVer = self.verticalRightRay(app, angle, canvas)
         else:
             distVer = self.verticalLeftRay(app, angle, canvas)
         # print(min(distHor, distVer))
-        # return min(distHor, distVer)
+        if distHor[2] < distVer[2]:
+            canvas.create_line(app.player.xPos, app.player.yPos, distHor[0], distHor[1], fill="green")        
+        else:
+            canvas.create_line(app.player.xPos, app.player.yPos, distVer[0], distVer[1], fill="orange")        
 
     def checkFirstIntersection(self, app, px, py):
         (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
@@ -74,8 +78,9 @@ class Raycaster:
             py = py-Ya
             end = self.checkOtherIntersections(app, px, py)
 
+        return (px, py, end[1])
         # return end[1]
-        canvas.create_line(app.player.xPos, app.player.yPos, px, py, fill="green")        
+        # canvas.create_line(app.player.xPos, app.player.yPos, px, py, fill="green")        
 
     def verticalLeftRay(self, app, angle, canvas):
         end = (False, 0)
@@ -95,9 +100,10 @@ class Raycaster:
             end = self.checkOtherIntersections(app, px, py)
         # Test other intersections until hit wall
 
+        return (px, py, end[1])
         # return end[1]
         # print(end[1])
-        canvas.create_line(app.player.xPos, app.player.yPos, px, py, fill="green")        
+        # canvas.create_line(app.player.xPos, app.player.yPos, px, py, fill="green")        
 
     def horizontalDownRay(self, app, angle, canvas):
         end = (False, 0)
@@ -117,8 +123,10 @@ class Raycaster:
             px = px-Xa
             py = py+self.cellHeight
             end = self.checkOtherIntersections(app, px, py)
+
+        return (px, py, end[1])
         # return end[1]
-        canvas.create_line(app.player.xPos, app.player.yPos, px, py, fill="orange")        
+        # canvas.create_line(app.player.xPos, app.player.yPos, px, py, fill="orange")        
 
     def horizontalUpRay(self, app, angle, canvas):
         end = (False, 0)
@@ -141,9 +149,10 @@ class Raycaster:
             py = py-self.cellHeight
             end = self.checkOtherIntersections(app, px, py)
 
+        return (px, py, end[1])
         # return end[1]
         # canvas.create_oval(px-5,py-5,px+5,py+5,fill='green')
-        canvas.create_line(app.player.xPos, app.player.yPos, px, py, fill="orange")        
+        # canvas.create_line(app.player.xPos, app.player.yPos, px, py, fill="orange")        
 
     def redraw(self, app, canvas):
         self.castRays(app, canvas)

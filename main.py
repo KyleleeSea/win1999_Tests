@@ -18,7 +18,7 @@ def keyPressed(app, event):
 
 def redrawAll(app, canvas):
     app.maze.redraw(app, canvas)
-    app.player.redraw(app, canvas)
     app.raycaster.redraw(app, canvas)
+    app.player.redraw(app, canvas)
 
 runApp(width=1500, height=600)

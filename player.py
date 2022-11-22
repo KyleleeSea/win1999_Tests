@@ -70,128 +70,128 @@ class Player:
         canvas.create_line(self.xPos, self.yPos, 
         self.xPos+(self.moveVel * math.sin(math.radians(self.angle)))*10,
         self.yPos+self.moveVel * math.cos(math.radians(self.angle))*10, 
-        fill='orange')
+        fill='red')
 
-        self.getRay(app, canvas)
+        # self.getRay(app, canvas)
 
 
-# https://permadi.com/1996/05/ray-casting-tutorial-7/
-# Conversation with Stephen Mao, discussed how to calculate height of a
-# triangle. stmao@andrew.cmu.edu
-    def getRay(self, app, canvas):
-        if self.angle >= 90 and self.angle <= 270:
-            distHor = self.horizontalUpRay(app)
-        else:
-            distHor = self.horizontalDownRay(app)
-        if self.angle >= 0 and self.angle <= 180:
-            distVer = self.verticalRightRay(app)
-        else:
-            distVer = self.verticalLeftRay(app)
-        # print(min(distHor, distVer))
-        return min(distHor, distVer)
+# # https://permadi.com/1996/05/ray-casting-tutorial-7/
+# # Conversation with Stephen Mao, discussed how to calculate height of a
+# # triangle. stmao@andrew.cmu.edu
+#     def getRay(self, app, canvas):
+#         if self.angle >= 90 and self.angle <= 270:
+#             distHor = self.horizontalUpRay(app)
+#         else:
+#             distHor = self.horizontalDownRay(app)
+#         if self.angle >= 0 and self.angle <= 180:
+#             distVer = self.verticalRightRay(app)
+#         else:
+#             distVer = self.verticalLeftRay(app)
+#         # print(min(distHor, distVer))
+#         return min(distHor, distVer)
 
-    def checkFirstIntersection(self, app, px, py):
-        (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
-        # Only check if point on map
-        if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
-        intersectionCol >= 0 and intersectionCol < len(self.maze)):
-            if self.maze[intersectionRow][intersectionCol] == 1:
-                return (True, getDistance(self.xPos, self.yPos, px, py))
-        return (False, 0)
+#     def checkFirstIntersection(self, app, px, py):
+#         (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
+#         # Only check if point on map
+#         if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
+#         intersectionCol >= 0 and intersectionCol < len(self.maze)):
+#             if self.maze[intersectionRow][intersectionCol] == 1:
+#                 return (True, getDistance(self.xPos, self.yPos, px, py))
+#         return (False, 0)
 
-    def checkOtherIntersections(self, app, px, py):
-        (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
-        if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
-            intersectionCol >= 0 and intersectionCol < len(self.maze)):
-            if self.maze[intersectionRow][intersectionCol] == 1:
-                return (True, getDistance(self.xPos, self.yPos, px, py))
-            # If point off map, just return a giant number 
-        else:
-            return (True, 10000000000000)
-        return (False, 0)
+#     def checkOtherIntersections(self, app, px, py):
+#         (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
+#         if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
+#             intersectionCol >= 0 and intersectionCol < len(self.maze)):
+#             if self.maze[intersectionRow][intersectionCol] == 1:
+#                 return (True, getDistance(self.xPos, self.yPos, px, py))
+#             # If point off map, just return a giant number 
+#         else:
+#             return (True, 10000000000000)
+#         return (False, 0)
     
-    def verticalRightRay(self, app):
-    # end variable first arg: True or False condition. second arg: distance
-    # value. 
-        end = (False, 0)
-        (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
-        px = cellWidth*(self.col+1)
-        py = self.yPos - math.tan(math.radians(self.angle-90))*(px-self.xPos)
+#     def verticalRightRay(self, app):
+#     # end variable first arg: True or False condition. second arg: distance
+#     # value. 
+#         end = (False, 0)
+#         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
+#         px = cellWidth*(self.col+1)
+#         py = self.yPos - math.tan(math.radians(self.angle-90))*(px-self.xPos)
 
-        end = self.checkFirstIntersection(app, px, py)
+#         end = self.checkFirstIntersection(app, px, py)
 
-        while end[0] != True:
-            Ya = cellWidth*(math.tan(math.radians(self.angle-90)))
-            px = px+cellWidth
-            py = py-Ya
-            end = self.checkOtherIntersections(app, px, py)
+#         while end[0] != True:
+#             Ya = cellWidth*(math.tan(math.radians(self.angle-90)))
+#             px = px+cellWidth
+#             py = py-Ya
+#             end = self.checkOtherIntersections(app, px, py)
 
-        return end[1]
-        # canvas.create_line(self.xPos, self.yPos, px, py,fill='green')
+#         return end[1]
+#         # canvas.create_line(self.xPos, self.yPos, px, py,fill='green')
 
-    def verticalLeftRay(self, app):
-        end = (False, 0)
-        (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
+#     def verticalLeftRay(self, app):
+#         end = (False, 0)
+#         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
 
-        #3.5*app.margin is a trivial fix to a bug that exists without the
-        #3.5* multiplier. Revisit here if future bugs.
-        px = cellWidth*(self.col - 1) + (3.5*app.margin)
-        # print(cellWidth)
-        py = self.yPos - math.tan(math.radians(self.angle-90))*(px-self.xPos)
+#         #3.5*app.margin is a trivial fix to a bug that exists without the
+#         #3.5* multiplier. Revisit here if future bugs.
+#         px = cellWidth*(self.col - 1) + (3.5*app.margin)
+#         # print(cellWidth)
+#         py = self.yPos - math.tan(math.radians(self.angle-90))*(px-self.xPos)
 
-        end = self.checkFirstIntersection(app, px, py)
+#         end = self.checkFirstIntersection(app, px, py)
 
-        while end[0] != True:
-            Ya = cellWidth*(math.tan(math.radians(self.angle-90)))
-            px = px-cellWidth
-            py = py+Ya
-            end = self.checkOtherIntersections(app, px, py)
-        # Test other intersections until hit wall
+#         while end[0] != True:
+#             Ya = cellWidth*(math.tan(math.radians(self.angle-90)))
+#             px = px-cellWidth
+#             py = py+Ya
+#             end = self.checkOtherIntersections(app, px, py)
+#         # Test other intersections until hit wall
 
-        return end[1]
-        # print(end[1])
-        # canvas.create_line(self.xPos, self.yPos, px, py, fill='green')        
+#         return end[1]
+#         # print(end[1])
+#         # canvas.create_line(self.xPos, self.yPos, px, py, fill='green')        
 
-    def horizontalDownRay(self, app):
-        end = (False, 0)
-        # Horizontal
-        # First intersection
-        (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
-        py = cellHeight*(self.row + 1)
-        #0.0001 added to avoid div by 0 error
-        px = self.xPos + (self.yPos - py)/(math.tan(math.radians(self.angle-90))
-        +0.0001)
+#     def horizontalDownRay(self, app):
+#         end = (False, 0)
+#         # Horizontal
+#         # First intersection
+#         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
+#         py = cellHeight*(self.row + 1)
+#         #0.0001 added to avoid div by 0 error
+#         px = self.xPos + (self.yPos - py)/(math.tan(math.radians(self.angle-90))
+#         +0.0001)
 
-        end = self.checkFirstIntersection(app, px, py)
+#         end = self.checkFirstIntersection(app, px, py)
 
-        while end[0] != True:
-            Xa = cellHeight/(math.tan(math.radians(self.angle-90))+0.0001)
-            px = px-Xa
-            py = py+cellHeight
-            end = self.checkOtherIntersections(app, px, py)
-        return end[1]
-        # canvas.create_line(self.xPos, self.yPos, px, py, fill="orange")        
+#         while end[0] != True:
+#             Xa = cellHeight/(math.tan(math.radians(self.angle-90))+0.0001)
+#             px = px-Xa
+#             py = py+cellHeight
+#             end = self.checkOtherIntersections(app, px, py)
+#         return end[1]
+#         # canvas.create_line(self.xPos, self.yPos, px, py, fill="orange")        
 
-    def horizontalUpRay(self, app):
-        end = (False, 0)
-        (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
+#     def horizontalUpRay(self, app):
+#         end = (False, 0)
+#         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
 
-        #1.2*app.margin is a trivial fix to a bug that exists without the
-        #Revisit here if future bugs.
-        py = cellHeight*(self.row - 1) + (1.2*app.margin)
-        #0.0001 added to avoid div by 0 error
-        px = self.xPos + (self.yPos - py)/(math.tan(math.radians(self.angle-90))
-        +0.0001)
+#         #1.2*app.margin is a trivial fix to a bug that exists without the
+#         #Revisit here if future bugs.
+#         py = cellHeight*(self.row - 1) + (1.2*app.margin)
+#         #0.0001 added to avoid div by 0 error
+#         px = self.xPos + (self.yPos - py)/(math.tan(math.radians(self.angle-90))
+#         +0.0001)
 
-        end = self.checkFirstIntersection(app, px, py)
+#         end = self.checkFirstIntersection(app, px, py)
 
-        # Test other intersections until hit wall
-        while end[0] != True:
-            Xa = cellHeight/(math.tan(math.radians(self.angle-90))+0.0001)
-            px = px+Xa
-            py = py-cellHeight
-            end = self.checkOtherIntersections(app, px, py)
+#         # Test other intersections until hit wall
+#         while end[0] != True:
+#             Xa = cellHeight/(math.tan(math.radians(self.angle-90))+0.0001)
+#             px = px+Xa
+#             py = py-cellHeight
+#             end = self.checkOtherIntersections(app, px, py)
 
-        return end[1]
-        # canvas.create_oval(px-5,py-5,px+5,py+5,fill='green')
-        # canvas.create_line(self.xPos, self.yPos, px, py, fill="orange")        
+#         return end[1]
+#         # canvas.create_oval(px-5,py-5,px+5,py+5,fill='green')
+#         # canvas.create_line(self.xPos, self.yPos, px, py, fill="orange")        
