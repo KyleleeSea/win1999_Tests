@@ -67,31 +67,29 @@ class Player:
         self.xPos + self.playerSize, self.yPos + self.playerSize,
         fill='orange')
         # Temporary 2D debugging line that'll show angle facing
-        # canvas.create_line(self.xPos, self.yPos, 
-        # self.xPos+(self.moveVel * math.sin(math.radians(self.angle)))*10,
-        # self.yPos+self.moveVel * math.cos(math.radians(self.angle))*10, 
-        # fill='orange')
+        canvas.create_line(self.xPos, self.yPos, 
+        self.xPos+(self.moveVel * math.sin(math.radians(self.angle)))*10,
+        self.yPos+self.moveVel * math.cos(math.radians(self.angle))*10, 
+        fill='orange')
 
-        self.drawRay(app, canvas)
+        self.getRay(app, canvas)
 
 
 # https://permadi.com/1996/05/ray-casting-tutorial-7/
 # Conversation with Stephen Mao, discussed how to calculate height of a
 # triangle. stmao@andrew.cmu.edu
-    def drawRay(self, app, canvas):
-        if self.angle >= 0 and self.angle <= 180:
-            self.verticalRightRay(app, canvas)
-        else:
-            self.verticalLeftRay(app, canvas)
+    def getRay(self, app, canvas):
         if self.angle >= 90 and self.angle <= 270:
-            # distHor = self.horizontalUpRay(app, canvas)
-            self.horizontalUpRay(app, canvas)
+            distHor = self.horizontalUpRay(app)
         else:
-            # distHor = self.horizontalDownRay(app, canvas)
-            self.horizontalDownRay(app, canvas)
-        # print(distHor)
+            distHor = self.horizontalDownRay(app)
+        if self.angle >= 0 and self.angle <= 180:
+            distVer = self.verticalRightRay(app)
+        else:
+            distVer = self.verticalLeftRay(app)
+        # print(min(distHor, distVer))
+        return min(distHor, distVer)
 
-# end first arg: T/F second arg: value
     def checkFirstIntersection(self, app, px, py):
         (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
         # Only check if point on map
@@ -112,13 +110,14 @@ class Player:
             return (True, 10000000000000)
         return (False, 0)
     
-    def verticalRightRay(self, app, canvas):
+    def verticalRightRay(self, app):
+    # end variable first arg: True or False condition. second arg: distance
+    # value. 
         end = (False, 0)
         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
         px = cellWidth*(self.col+1)
         py = self.yPos - math.tan(math.radians(self.angle-90))*(px-self.xPos)
 
-        # Only check if point on map
         end = self.checkFirstIntersection(app, px, py)
 
         while end[0] != True:
@@ -126,12 +125,11 @@ class Player:
             px = px+cellWidth
             py = py-Ya
             end = self.checkOtherIntersections(app, px, py)
-        # Test other intersections until hit wall
 
-        # return end[1]
-        canvas.create_line(self.xPos, self.yPos, px, py,fill='green')
+        return end[1]
+        # canvas.create_line(self.xPos, self.yPos, px, py,fill='green')
 
-    def verticalLeftRay(self, app, canvas):
+    def verticalLeftRay(self, app):
         end = (False, 0)
         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
 
@@ -141,7 +139,6 @@ class Player:
         # print(cellWidth)
         py = self.yPos - math.tan(math.radians(self.angle-90))*(px-self.xPos)
 
-        # Only check if point on map
         end = self.checkFirstIntersection(app, px, py)
 
         while end[0] != True:
@@ -151,11 +148,11 @@ class Player:
             end = self.checkOtherIntersections(app, px, py)
         # Test other intersections until hit wall
 
-        # return end[1]
+        return end[1]
         # print(end[1])
-        canvas.create_line(self.xPos, self.yPos, px, py, fill='green')        
+        # canvas.create_line(self.xPos, self.yPos, px, py, fill='green')        
 
-    def horizontalDownRay(self, app, canvas):
+    def horizontalDownRay(self, app):
         end = (False, 0)
         # Horizontal
         # First intersection
@@ -172,13 +169,11 @@ class Player:
             px = px-Xa
             py = py+cellHeight
             end = self.checkOtherIntersections(app, px, py)
-        # return end[1]
-        canvas.create_line(self.xPos, self.yPos, px, py, fill="orange")        
+        return end[1]
+        # canvas.create_line(self.xPos, self.yPos, px, py, fill="orange")        
 
-    def horizontalUpRay(self, app, canvas):
+    def horizontalUpRay(self, app):
         end = (False, 0)
-        # Horizontal
-        # First intersection
         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
 
         #1.2*app.margin is a trivial fix to a bug that exists without the
@@ -197,6 +192,6 @@ class Player:
             py = py-cellHeight
             end = self.checkOtherIntersections(app, px, py)
 
-        # return end[1]
-        canvas.create_oval(px-5,py-5,px+5,py+5,fill='green')
-        canvas.create_line(self.xPos, self.yPos, px, py, fill="orange")        
+        return end[1]
+        # canvas.create_oval(px-5,py-5,px+5,py+5,fill='green')
+        # canvas.create_line(self.xPos, self.yPos, px, py, fill="orange")        
