@@ -67,10 +67,10 @@ class Player:
         self.xPos + self.playerSize, self.yPos + self.playerSize,
         fill='orange')
         # Temporary 2D debugging line that'll show angle facing
-        canvas.create_line(self.xPos, self.yPos, 
-        self.xPos+(self.moveVel * math.sin(math.radians(self.angle)))*10,
-        self.yPos+self.moveVel * math.cos(math.radians(self.angle))*10, 
-        fill='orange')
+        # canvas.create_line(self.xPos, self.yPos, 
+        # self.xPos+(self.moveVel * math.sin(math.radians(self.angle)))*10,
+        # self.yPos+self.moveVel * math.cos(math.radians(self.angle))*10, 
+        # fill='orange')
 
         self.drawRay(app, canvas)
 
@@ -79,16 +79,17 @@ class Player:
 # Conversation with Stephen Mao, discussed how to calculate height of a
 # triangle. stmao@andrew.cmu.edu
     def drawRay(self, app, canvas):
-        if self.angle >= 90 and self.angle <= 270:
-            distHor = self.horizontalUpRay(app)
-        else:
-            distHor = self.horizontalDownRay(app)
-        # print(distHor)
-        # self.verticalRightRay(app, canvas)
         if self.angle >= 0 and self.angle <= 180:
             self.verticalRightRay(app, canvas)
         else:
             self.verticalLeftRay(app, canvas)
+        if self.angle >= 90 and self.angle <= 270:
+            # distHor = self.horizontalUpRay(app, canvas)
+            self.horizontalUpRay(app, canvas)
+        else:
+            # distHor = self.horizontalDownRay(app, canvas)
+            self.horizontalDownRay(app, canvas)
+        # print(distHor)
 
 # end first arg: T/F second arg: value
     def checkFirstIntersection(self, app, px, py):
@@ -128,13 +129,16 @@ class Player:
         # Test other intersections until hit wall
 
         # return end[1]
-        print(end[1])
-        canvas.create_oval(px-5,py-5,px+5,py+5,fill='green')
+        canvas.create_line(self.xPos, self.yPos, px, py,fill='green')
 
     def verticalLeftRay(self, app, canvas):
         end = (False, 0)
         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
-        px = cellWidth*(self.col-1)+app.margin
+
+        #3.5*app.margin is a trivial fix to a bug that exists without the
+        #3.5* multiplier. Revisit here if future bugs.
+        px = cellWidth*(self.col - 1) + (3.5*app.margin)
+        # print(cellWidth)
         py = self.yPos - math.tan(math.radians(self.angle-90))*(px-self.xPos)
 
         # Only check if point on map
@@ -148,10 +152,10 @@ class Player:
         # Test other intersections until hit wall
 
         # return end[1]
-        print(end[1])
-        canvas.create_oval(px-5,py-5,px+5,py+5,fill='green')        
+        # print(end[1])
+        canvas.create_line(self.xPos, self.yPos, px, py, fill='green')        
 
-    def horizontalDownRay(self, app):
+    def horizontalDownRay(self, app, canvas):
         end = (False, 0)
         # Horizontal
         # First intersection
@@ -168,14 +172,18 @@ class Player:
             px = px-Xa
             py = py+cellHeight
             end = self.checkOtherIntersections(app, px, py)
-        return end[1]
-                
-    def horizontalUpRay(self, app):
+        # return end[1]
+        canvas.create_line(self.xPos, self.yPos, px, py, fill="orange")        
+
+    def horizontalUpRay(self, app, canvas):
         end = (False, 0)
         # Horizontal
         # First intersection
         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
-        py = cellHeight*(self.row - 1) + app.margin
+
+        #1.2*app.margin is a trivial fix to a bug that exists without the
+        #Revisit here if future bugs.
+        py = cellHeight*(self.row - 1) + (1.2*app.margin)
         #0.0001 added to avoid div by 0 error
         px = self.xPos + (self.yPos - py)/(math.tan(math.radians(self.angle-90))
         +0.0001)
@@ -189,4 +197,6 @@ class Player:
             py = py-cellHeight
             end = self.checkOtherIntersections(app, px, py)
 
-        return end[1]
+        # return end[1]
+        canvas.create_oval(px-5,py-5,px+5,py+5,fill='green')
+        canvas.create_line(self.xPos, self.yPos, px, py, fill="orange")        
