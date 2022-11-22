@@ -83,7 +83,48 @@ class Player:
             distHor = self.horizontalUpRay(app)
         else:
             distHor = self.horizontalDownRay(app)
-        print(distHor)
+        # print(distHor)
+        self.verticalRightRay(app, canvas)
+
+    def checkFirstIntersection(self, app, px, py):
+        (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
+        # Only check if point on map
+        if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
+        intersectionCol >= 0 and intersectionCol < len(self.maze)):
+            if self.maze[intersectionRow][intersectionCol] == 1:
+                # return getDistance(self.xPos, self.yPos, px, py)
+    
+    def verticalRightRay(self, app, canvas):
+        isInWall = False
+        (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
+        px = cellWidth*(self.col+1)
+        py = self.yPos - math.tan(math.radians(self.angle-90))*(px-self.xPos)
+        # Check if first intersection hits a wall
+        (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
+        # Only check if point on map
+        self.checkFirstIntersection(app, px, py)
+        if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
+        intersectionCol >= 0 and intersectionCol < len(self.maze)):
+            if self.maze[intersectionRow][intersectionCol] == 1:
+                isInWall = True
+                # return getDistance(self.xPos, self.yPos, px, py)
+        
+        # Test other intersections until hit wall
+        while isInWall != True:
+            Ya = cellWidth*(math.tan(math.radians(self.angle-90)))
+            px = px+cellWidth
+            py = py-Ya
+            (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
+            if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
+            intersectionCol >= 0 and intersectionCol < len(self.maze)):
+                if self.maze[intersectionRow][intersectionCol] == 1:
+                    isInWall = True
+                    # return getDistance(self.xPos, self.yPos, px, py)
+            # If point off map, just return a giant number 
+            else:
+                isInWall = True
+                # return 10000000000
+        canvas.create_oval(px-5,py-5,px+5,py+5,fill='green')
 
     def horizontalDownRay(self, app):
         isInWall = False
