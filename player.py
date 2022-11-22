@@ -84,50 +84,75 @@ class Player:
         else:
             distHor = self.horizontalDownRay(app)
         # print(distHor)
-        self.verticalRightRay(app, canvas)
+        # self.verticalRightRay(app, canvas)
+        if self.angle >= 0 and self.angle <= 180:
+            self.verticalRightRay(app, canvas)
+        else:
+            self.verticalLeftRay(app, canvas)
 
+# end first arg: T/F second arg: value
     def checkFirstIntersection(self, app, px, py):
         (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
         # Only check if point on map
         if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
         intersectionCol >= 0 and intersectionCol < len(self.maze)):
             if self.maze[intersectionRow][intersectionCol] == 1:
-                # return getDistance(self.xPos, self.yPos, px, py)
+                return (True, getDistance(self.xPos, self.yPos, px, py))
+        return (False, 0)
+
+    def checkOtherIntersections(self, app, px, py):
+        (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
+        if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
+            intersectionCol >= 0 and intersectionCol < len(self.maze)):
+            if self.maze[intersectionRow][intersectionCol] == 1:
+                return (True, getDistance(self.xPos, self.yPos, px, py))
+            # If point off map, just return a giant number 
+        else:
+            return (True, 10000000000000)
+        return (False, 0)
     
     def verticalRightRay(self, app, canvas):
-        isInWall = False
+        end = (False, 0)
         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
         px = cellWidth*(self.col+1)
         py = self.yPos - math.tan(math.radians(self.angle-90))*(px-self.xPos)
-        # Check if first intersection hits a wall
-        (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
+
         # Only check if point on map
-        self.checkFirstIntersection(app, px, py)
-        if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
-        intersectionCol >= 0 and intersectionCol < len(self.maze)):
-            if self.maze[intersectionRow][intersectionCol] == 1:
-                isInWall = True
-                # return getDistance(self.xPos, self.yPos, px, py)
-        
-        # Test other intersections until hit wall
-        while isInWall != True:
+        end = self.checkFirstIntersection(app, px, py)
+
+        while end[0] != True:
             Ya = cellWidth*(math.tan(math.radians(self.angle-90)))
             px = px+cellWidth
             py = py-Ya
-            (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
-            if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
-            intersectionCol >= 0 and intersectionCol < len(self.maze)):
-                if self.maze[intersectionRow][intersectionCol] == 1:
-                    isInWall = True
-                    # return getDistance(self.xPos, self.yPos, px, py)
-            # If point off map, just return a giant number 
-            else:
-                isInWall = True
-                # return 10000000000
+            end = self.checkOtherIntersections(app, px, py)
+        # Test other intersections until hit wall
+
+        # return end[1]
+        print(end[1])
         canvas.create_oval(px-5,py-5,px+5,py+5,fill='green')
 
+    def verticalLeftRay(self, app, canvas):
+        end = (False, 0)
+        (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
+        px = cellWidth*(self.col-1)+app.margin
+        py = self.yPos - math.tan(math.radians(self.angle-90))*(px-self.xPos)
+
+        # Only check if point on map
+        end = self.checkFirstIntersection(app, px, py)
+
+        while end[0] != True:
+            Ya = cellWidth*(math.tan(math.radians(self.angle-90)))
+            px = px-cellWidth
+            py = py+Ya
+            end = self.checkOtherIntersections(app, px, py)
+        # Test other intersections until hit wall
+
+        # return end[1]
+        print(end[1])
+        canvas.create_oval(px-5,py-5,px+5,py+5,fill='green')        
+
     def horizontalDownRay(self, app):
-        isInWall = False
+        end = (False, 0)
         # Horizontal
         # First intersection
         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
@@ -135,61 +160,33 @@ class Player:
         #0.0001 added to avoid div by 0 error
         px = self.xPos + (self.yPos - py)/(math.tan(math.radians(self.angle-90))
         +0.0001)
-        # Check if first intersection hits a wall
-        (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
-        # Only check if point on map
-        if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
-        intersectionCol >= 0 and intersectionCol < len(self.maze)):
-            if self.maze[intersectionRow][intersectionCol] == 1:
-                isInWall = True
-                return getDistance(self.xPos, self.yPos, px, py)
-        
-        # Test other intersections until hit wall
-        while isInWall != True:
+
+        end = self.checkFirstIntersection(app, px, py)
+
+        while end[0] != True:
             Xa = cellHeight/(math.tan(math.radians(self.angle-90))+0.0001)
             px = px-Xa
             py = py+cellHeight
-            (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
-            if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
-            intersectionCol >= 0 and intersectionCol < len(self.maze)):
-                if self.maze[intersectionRow][intersectionCol] == 1:
-                    isInWall = True
-                    return getDistance(self.xPos, self.yPos, px, py)
-            # If point off map, just return a giant number 
-            else:
-                isInWall = True
-                return 10000000000
+            end = self.checkOtherIntersections(app, px, py)
+        return end[1]
                 
     def horizontalUpRay(self, app):
-        isInWall = False
+        end = (False, 0)
         # Horizontal
         # First intersection
         (cellWidth, cellHeight) = getCellSpecs(app, self.maze)
-        py = cellHeight*(self.row - 1)
+        py = cellHeight*(self.row - 1) + app.margin
         #0.0001 added to avoid div by 0 error
         px = self.xPos + (self.yPos - py)/(math.tan(math.radians(self.angle-90))
         +0.0001)
-        # Check if first intersection hits a wall
-        (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
-        # Only check if point on map
-        if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
-        intersectionCol >= 0 and intersectionCol < len(self.maze)):
-            if self.maze[intersectionRow][intersectionCol] == 1:
-                isInWall = True
-                return getDistance(self.xPos, self.yPos, px, py)
-        
+
+        end = self.checkFirstIntersection(app, px, py)
+
         # Test other intersections until hit wall
-        while isInWall != True:
+        while end[0] != True:
             Xa = cellHeight/(math.tan(math.radians(self.angle-90))+0.0001)
             px = px+Xa
             py = py-cellHeight
-            (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
-            if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
-            intersectionCol >= 0 and intersectionCol < len(self.maze)):
-                if self.maze[intersectionRow][intersectionCol] == 1:
-                    isInWall = True
-                    return getDistance(self.xPos, self.yPos, px, py)
-            # If point off map, just return a giant number 
-            else:
-                isInWall = True
-                return 10000000000
+            end = self.checkOtherIntersections(app, px, py)
+
+        return end[1]
