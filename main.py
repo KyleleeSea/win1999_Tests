@@ -5,7 +5,7 @@ from raycaster import *
 
 def appStarted(app):
     app.timerDelay = 200
-    app.margin = min(app.width, app.height)//15
+    # app.margin = min(app.width, app.height)//20
     app.maze = Maze()
     app.player = Player(app, app.maze)
     app.raycaster = Raycaster(app, app.maze)
@@ -18,7 +18,7 @@ def keyPressed(app, event):
 
 def redrawAll(app, canvas):
     app.maze.redraw(app, canvas)
-    app.raycaster.redraw(app, canvas)
     app.player.redraw(app, canvas)
+    app.raycaster.redraw(app, canvas)
 
 runApp(width=1500, height=600)

@@ -1,7 +1,7 @@
 # View Helpers
 def getCellSpecs(app, maze):
-    width = app.width - 2*app.margin
-    height = app.height - 2*app.margin
+    width = app.width
+    height = app.height
     (numRows, numCols) = (len(maze), len(maze[0]))
     cellWidth = width//numRows
     cellHeight = height//numCols
@@ -15,8 +15,8 @@ def getCellBounds(row, col, maze, app):
 
 # https://www.cs.cmu.edu/~112/notes/notes-animations-part2.html
 def getCell(app, x, y, maze):
-    gridWidth  = app.width - 2*app.margin
-    gridHeight = app.height - 2*app.margin
+    gridWidth  = app.width
+    gridHeight = app.height
     cellWidth  = gridWidth / len(maze[0])
     cellHeight = gridHeight / len(maze)
 

@@ -34,27 +34,28 @@ class Raycaster:
             distVer = self.verticalRightRay(app, angle, canvas)
         else:
             distVer = self.verticalLeftRay(app, angle, canvas)
-        # print(min(distHor, distVer))
         if distHor[2] < distVer[2]:
             canvas.create_line(app.player.xPos, app.player.yPos, distHor[0], distHor[1], fill="green")        
         else:
             canvas.create_line(app.player.xPos, app.player.yPos, distVer[0], distVer[1], fill="orange")        
 
-    def checkFirstIntersection(self, app, px, py):
+# rAdj and cAdj needed because intersection checks top most cell, causing
+# errors in cases Vertical Left and Horizontal up. 
+    def checkFirstIntersection(self, app, px, py, rAdj, cAdj):
         (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
         # Only check if point on map
         if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
         intersectionCol >= 0 and intersectionCol < len(self.maze)):
-            if self.maze[intersectionRow][intersectionCol] == 1:
+            if self.maze[intersectionRow+rAdj][intersectionCol+cAdj] == 1:
                 return (True, getDistance(app.player.xPos, app.player.yPos, 
                 px, py))
         return (False, 0)
 
-    def checkOtherIntersections(self, app, px, py):
+    def checkOtherIntersections(self, app, px, py, rAdj, cAdj):
         (intersectionRow, intersectionCol) = getCell(app, px, py, self.maze)
         if (intersectionRow >= 0 and intersectionRow < len(self.maze) and 
             intersectionCol >= 0 and intersectionCol < len(self.maze)):
-            if self.maze[intersectionRow][intersectionCol] == 1:
+            if self.maze[intersectionRow+rAdj][intersectionCol+cAdj] == 1:
                 return (True, getDistance(app.player.xPos, app.player.yPos, px, 
                 py))
             # If point off map, just return a giant number 
@@ -70,13 +71,13 @@ class Raycaster:
         py = (app.player.yPos - 
         math.tan(math.radians(angle-90))*(px-app.player.xPos))
 
-        end = self.checkFirstIntersection(app, px, py)
+        end = self.checkFirstIntersection(app, px, py, 0, 0)
 
         while end[0] != True:
             Ya = self.cellWidth*(math.tan(math.radians(angle-90)))
             px = px+self.cellWidth
             py = py-Ya
-            end = self.checkOtherIntersections(app, px, py)
+            end = self.checkOtherIntersections(app, px, py, 0, 0)
 
         return (px, py, end[1])
         # return end[1]
@@ -86,18 +87,18 @@ class Raycaster:
         end = (False, 0)
         #3.5*app.margin is a trivial fix to a bug that exists without the
         #3.5* multiplier. Revisit here if future bugs.
-        px = self.cellWidth*(app.player.col - 1) + (3.5*app.margin)
+        px = self.cellWidth*(app.player.col)
         # print(cellWidth)
         py = (app.player.yPos - 
         math.tan(math.radians(angle - 90))*(px-app.player.xPos))
 
-        end = self.checkFirstIntersection(app, px, py)
+        end = self.checkFirstIntersection(app, px, py, 0, -1)
 
         while end[0] != True:
             Ya = self.cellWidth*(math.tan(math.radians(angle-90)))
             px = px-self.cellWidth
             py = py+Ya
-            end = self.checkOtherIntersections(app, px, py)
+            end = self.checkOtherIntersections(app, px, py, 0, -1)
         # Test other intersections until hit wall
 
         return (px, py, end[1])
@@ -115,14 +116,14 @@ class Raycaster:
         (app.player.yPos - py)/(math.tan(math.radians(angle-90))
         +0.0001))
 
-        end = self.checkFirstIntersection(app, px, py)
+        end = self.checkFirstIntersection(app, px, py, 0, 0)
 
         while end[0] != True:
             Xa = self.cellHeight/((math.tan(math.radians(angle-90))
             +0.0001))
             px = px-Xa
             py = py+self.cellHeight
-            end = self.checkOtherIntersections(app, px, py)
+            end = self.checkOtherIntersections(app, px, py, 0, 0)
 
         return (px, py, end[1])
         # return end[1]
@@ -133,13 +134,14 @@ class Raycaster:
 
         #1.2*app.margin is a trivial fix to a bug that exists without the
         #Revisit here if future bugs.
-        py = self.cellHeight*(app.player.row - 1) + (1.2*app.margin)
+        # print(f'row:{app.player.row}')
+        py = self.cellHeight*(app.player.row)
         #0.0001 added to avoid div by 0 error
         px = (app.player.xPos + 
         (app.player.yPos - py)/(math.tan(math.radians(angle-90))
         +0.0001))
 
-        end = self.checkFirstIntersection(app, px, py)
+        end = self.checkFirstIntersection(app, px, py, -1, 0)
 
         # Test other intersections until hit wall
         while end[0] != True:
@@ -147,7 +149,8 @@ class Raycaster:
             +0.0001))
             px = px+Xa
             py = py-self.cellHeight
-            end = self.checkOtherIntersections(app, px, py)
+            end = self.checkOtherIntersections(app, px, py, -1, 0)
+        print(py)
 
         return (px, py, end[1])
         # return end[1]
@@ -155,4 +158,6 @@ class Raycaster:
         # canvas.create_line(app.player.xPos, app.player.yPos, px, py, fill="orange")        
 
     def redraw(self, app, canvas):
-        self.castRays(app, canvas)
+        # self.castRays(app, canvas)
+        print(app.player.angle)
+        self.getRay(app, app.player.angle, canvas)
