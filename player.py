@@ -63,14 +63,14 @@ class Player:
         return False
 
     def redraw(self, app, canvas):
-        canvas.create_oval(self.xPos-self.playerSize, self.yPos-self.playerSize,
-        self.xPos + self.playerSize, self.yPos + self.playerSize,
+        canvas.create_oval((self.xPos-self.playerSize)//5, (self.yPos-self.playerSize)//5,
+        (self.xPos + self.playerSize)//5, (self.yPos + self.playerSize)//5,
         fill='orange')
         # Temporary 2D debugging line that'll show angle facing
-        canvas.create_line(self.xPos, self.yPos, 
-        self.xPos+(self.moveVel * math.sin(math.radians(self.angle)))*10,
-        self.yPos+self.moveVel * math.cos(math.radians(self.angle))*10, 
-        fill='red')
+        # canvas.create_line(self.xPos, self.yPos, 
+        # self.xPos+(self.moveVel * math.sin(math.radians(self.angle)))*10,
+        # self.yPos+self.moveVel * math.cos(math.radians(self.angle))*10, 
+        # fill='red')
 
         # self.getRay(app, canvas)
 

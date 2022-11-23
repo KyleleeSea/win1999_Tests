@@ -17,8 +17,8 @@ class Maze:
 # Maze drawing helpers
 def drawWall(app, canvas, row, col, maze):
     (x0, y0, x1, y1) = getCellBounds(row, col, maze, app)
-    canvas.create_rectangle(x0, y0, x1, y1, fill='black')
+    canvas.create_rectangle(x0//5, y0//5, x1//5, y1//5, fill='black')
 
 def drawOpen(app, canvas, row, col, maze):
     (x0, y0, x1, y1) = getCellBounds(row, col, maze, app)
-    canvas.create_rectangle(x0, y0, x1, y1, fill='white', outline='black')
+    canvas.create_rectangle(x0//5, y0//5, x1//5, y1//5, fill='white', outline='black')

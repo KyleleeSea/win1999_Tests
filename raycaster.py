@@ -13,15 +13,41 @@ class Raycaster:
         self.numRays = 320
         self.angleBetweenRays = self.FOV/self.numRays
 
+    def drawWalls(self, app, canvas):
+        heights = self.distsToHeights(app, canvas)
+        planeWidth = app.width
+        planeHeight = app.height
+        cy = planeHeight/2
+        currX = 0
+        xAdj = planeWidth/self.numRays
 
-    def castRays(self, app, canvas):
+        for height in heights:
+            (x0, x1) = (currX, currX+xAdj)
+            (y0, y1) = (cy-(height/2),cy+(height/2))
+            currX = x1
+            canvas.create_rectangle(x0,y0,x1,y1,fill='orange')
+
+    def distsToHeights(self, app, canvas):
+        dists = self.getDists(app, canvas)
+        projectedHeights = []
+        distToPlane = (app.width/2)*math.tan(math.radians(30))
+
+        for dist in dists:
+            projHeight = (self.wallHeight/dist)*distToPlane
+            projectedHeights.append(projHeight)
+        return projectedHeights
+
+    def getDists(self, app, canvas):
         print(app.player.angle)
+        dists = []
         angle = app.player.angle - 30
         for i in range(self.numRays):
             angle += self.angleBetweenRays
+            # if statement here might be wrong. come back if bugs.
             if angle > 360:
                 angle = 0
-            self.getRay(app, angle, canvas)
+            dists.append(self.getRay(app, angle, canvas))
+        return dists
 
 # https://permadi.com/1996/05/ray-casting-tutorial-7/
 # Conversation with Stephen Mao, discussed how to calculate height of a
@@ -36,9 +62,11 @@ class Raycaster:
         else:
             distVer = self.verticalLeftRay(app, angle, canvas)
         if distHor[2] < distVer[2]:
-            canvas.create_line(app.player.xPos, app.player.yPos, distHor[0], distHor[1], fill="green")        
+            return distHor[2]
+            # canvas.create_line(app.player.xPos, app.player.yPos, distHor[0], distHor[1], fill="green")        
         else:
-            canvas.create_line(app.player.xPos, app.player.yPos, distVer[0], distVer[1], fill="orange")        
+            return distVer[2]
+            # canvas.create_line(app.player.xPos, app.player.yPos, distVer[0], distVer[1], fill="orange")        
 
 # rAdj and cAdj needed because intersection checks top most cell, causing
 # errors in cases Vertical Left and Horizontal up. 
@@ -159,6 +187,7 @@ class Raycaster:
         # canvas.create_line(app.player.xPos, app.player.yPos, px, py, fill="orange")        
 
     def redraw(self, app, canvas):
-        self.castRays(app, canvas)
+        self.drawWalls(app, canvas)
+        # self.getDists(app, canvas)
         # print(app.player.angle)
         # self.getRay(app, app.player.angle, canvas)
