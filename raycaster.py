@@ -19,18 +19,19 @@ class Raycaster:
         angle = app.player.angle - 30
         for i in range(self.numRays):
             angle += self.angleBetweenRays
+            if angle > 360:
+                angle = 0
             self.getRay(app, angle, canvas)
-        
 
 # https://permadi.com/1996/05/ray-casting-tutorial-7/
 # Conversation with Stephen Mao, discussed how to calculate height of a
 # triangle. stmao@andrew.cmu.edu
     def getRay(self, app, angle, canvas):
-        if angle >= 90 and angle <= 270:
+        if angle > 90 and angle < 270:
             distHor = self.horizontalUpRay(app, angle, canvas)
         else:
             distHor = self.horizontalDownRay(app, angle, canvas)
-        if angle >= 0 and angle <= 180:
+        if angle > 0 and angle < 180:
             distVer = self.verticalRightRay(app, angle, canvas)
         else:
             distVer = self.verticalLeftRay(app, angle, canvas)
@@ -90,7 +91,7 @@ class Raycaster:
         px = self.cellWidth*(app.player.col)
         # print(cellWidth)
         py = (app.player.yPos - 
-        math.tan(math.radians(angle - 90))*(px-app.player.xPos))
+        math.tan(math.radians(angle-90))*(px-app.player.xPos))
 
         end = self.checkFirstIntersection(app, px, py, 0, -1)
 
@@ -158,6 +159,6 @@ class Raycaster:
         # canvas.create_line(app.player.xPos, app.player.yPos, px, py, fill="orange")        
 
     def redraw(self, app, canvas):
-        # self.castRays(app, canvas)
-        print(app.player.angle)
-        self.getRay(app, app.player.angle, canvas)
+        self.castRays(app, canvas)
+        # print(app.player.angle)
+        # self.getRay(app, app.player.angle, canvas)
